@@ -1,5 +1,6 @@
 package apidoc;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -8,10 +9,10 @@ import java.util.Set;
 public class ApiDocHttpMethod {
     private String name;
     private String path;
-    private Set<ApiDocParam> params;
+    private Set<ApiDocParam> inputParams;
+    private Class<? extends Serializable> returnParam;
 
     public ApiDocHttpMethod(String name) {
-
         this.name = name;
     }
 
@@ -23,12 +24,29 @@ public class ApiDocHttpMethod {
         return path;
     }
 
-    public void setParams(Set<ApiDocParam> params) {
-        this.params = params;
+    public void setInputParams(Set<ApiDocParam> inputParams) {
+        this.inputParams = inputParams;
     }
 
-    public Set<ApiDocParam> getParams() {
-        return params;
+    public Set<ApiDocParam> getInputParams() {
+        return inputParams;
+    }
+
+    public void setReturnParam(Class<? extends Serializable> returnParam) {
+        this.returnParam = returnParam;
+    }
+
+    public Class<? extends Serializable> getReturnParam() {
+        return returnParam;
+    }
+
+    public String getReturnParamAsJson() {
+        if ((returnParam != null) && !returnParam.isPrimitive()) {
+            return JsonHelper.toJson(returnParam);
+        } else {
+            return "";
+        }
+
     }
 
     @Override
@@ -36,9 +54,9 @@ public class ApiDocHttpMethod {
         String out = "ApiDocHttpMethod{" +
                 "name='" + name + '\'' +
                 ", path='" + path + '\'' +
-                ", params=";
+                ", inputParams=";
 
-        for (ApiDocParam param : params) {
+        for (ApiDocParam param : inputParams) {
             out += "\n" + param.toString();
         }
         out += "}\n";

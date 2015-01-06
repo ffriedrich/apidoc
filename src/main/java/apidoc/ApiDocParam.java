@@ -14,12 +14,17 @@ public class ApiDocParam {
         this.httpParamType = httpParamType;
     }
 
+    public String getAsJson() {
+        return JsonHelper.toJson(parameterType);
+    }
+
     @Override
     public String toString() {
         return "ApiDocParam{" +
                 "parameterName='" + parameterName + '\'' +
                 ", parameterType=" + parameterType +
                 ", httpParamType=" + httpParamType +
+                ", example=" + getAsJson() +
                 '}';
     }
 }

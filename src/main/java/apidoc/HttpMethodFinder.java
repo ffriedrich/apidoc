@@ -3,6 +3,7 @@ package apidoc;
 import org.reflections.Reflections;
 
 import javax.ws.rs.*;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,6 +44,8 @@ public class HttpMethodFinder {
         for (Method method : getMethods) {
             ApiDocHttpMethod apiDocHttpMethod = new ApiDocHttpMethod(method.getName());
 
+            apiDocHttpMethod.setReturnParam(getReturnParameter(method));
+
             Set<ApiDocParam> params = new HashSet<>();
             StringBuilder pathBuilder = new StringBuilder();
 
@@ -50,11 +53,18 @@ public class HttpMethodFinder {
             getPathOnFactoryMethodOrClass(method, pathBuilder, params);
 
             apiDocHttpMethod.setPath(pathBuilder.toString());
-            apiDocHttpMethod.setParams(params);
+            apiDocHttpMethod.setInputParams(params);
             apiDocHttpMethods.add(apiDocHttpMethod);
         }
 
         return apiDocHttpMethods;
+    }
+
+    private Class<? extends Serializable> getReturnParameter(Method method) {
+        if (method.isAnnotationPresent(Result.class)) {
+            return method.getAnnotation(Result.class).value();
+        }
+        return null;
     }
 
     private void getPathOnMethodAndClass(Method method, StringBuilder pathBuilder, Set<ApiDocParam> params) {
@@ -72,6 +82,7 @@ public class HttpMethodFinder {
         }
         params.addAll(getParamsOfKind(method, PathParam.class));
         params.addAll(getParamsOfKind(method, QueryParam.class));
+        params.addAll(getRegularParams(method));
     }
 
     private void getPathOnFactoryMethodOrClass(Method method, StringBuilder pathBuilder, Set<ApiDocParam> params) {
@@ -79,6 +90,13 @@ public class HttpMethodFinder {
             getPathOnMethodAndClass(factoryMethod, pathBuilder, params);
             getPathOnFactoryMethodOrClass(factoryMethod, pathBuilder, params);
         }
+    }
+
+    private Set<ApiDocParam> getRegularParams(Method method) {
+        Set<ApiDocParam> apiDocParams = new HashSet<>();
+
+        //TODO find all params that are not annotated with PathParam or QueryParam
+        return apiDocParams;
     }
 
     private <T> Set<ApiDocParam> getParamsOfKind(Method method, Class<T> httpParamType) {

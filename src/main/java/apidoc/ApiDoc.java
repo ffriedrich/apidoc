@@ -5,6 +5,8 @@ import org.reflections.scanners.MethodAnnotationsScanner;
 import org.reflections.scanners.MethodParameterScanner;
 import org.reflections.util.ClasspathHelper;
 
+import java.util.List;
+
 /**
  * User: frank
  */
@@ -14,7 +16,8 @@ public class ApiDoc {
         Reflections reflections = new Reflections(ClasspathHelper.forPackage(packageToScan), new MethodAnnotationsScanner(), new MethodParameterScanner());
 
         System.out.println("GET methods:");
-        System.out.println(new HttpMethodFinder(reflections).findGetMethods().toString());
+        List<ApiDocHttpMethod> getMethods = new HttpMethodFinder(reflections).findGetMethods();
+        System.out.println(getMethods.toString());
 
         System.out.println("PUT methods:");
         System.out.println(new HttpMethodFinder(reflections).findPutMethods().toString());
@@ -24,7 +27,18 @@ public class ApiDoc {
 
         System.out.println("DELETE methods:");
         System.out.println(new HttpMethodFinder(reflections).findDeleteMethods().toString());
+
+        System.out.println("Return parameters");
+        for (ApiDocHttpMethod getMethod : getMethods) {
+            if (getMethod.getReturnParam() != null) {
+                String returnParamAsJson = getMethod.getReturnParamAsJson();
+                System.out.println("GET " + getMethod.getPath() + ": " + returnParamAsJson);
+            }
+        }
+
+
     }
+
 
     //@Path kann an FactoryMethod annotiert sein, die dann Resourcen unter diesem Pfad zurückliefert
 
